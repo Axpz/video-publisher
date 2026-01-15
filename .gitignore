@@ -1,0 +1,23 @@
+# 敏感文件
+.auth/
+*secrets.json
+*token.json
+
+# Go 相关
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.log
+video-publisher
