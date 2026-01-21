@@ -1,6 +1,7 @@
 package douyin
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,7 +14,7 @@ const uploadUrl = "https://creator.douyin.com/creator-micro/content/upload"
 const uploadSelector = ".container-drag-upload-tL99XD"
 const publishButtonSelector = "text=发布"
 
-func (c *Client) Upload(filePath, metadataPath string) (string, error) {
+func (c *Client) Upload(ctx context.Context, filePath, metadataPath string) (string, error) {
 	sessionFile := c.Config.SessionFile
 
 	if _, err := os.Stat(sessionFile); err != nil {

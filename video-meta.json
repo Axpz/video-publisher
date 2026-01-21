@@ -1,10 +1,13 @@
 {
-    "title": "新包装春节不打烊 #琳航暖芯 #Linhang",
-    "desc": "新包装春节不打烊",
-    "tags": ["琳航暖芯", "暖宝宝", "factory", "machine", "OEM", "ODM", "bodywarmer", "heatpatch", "yiwu", "business"],
-    "category": "28",
-    "location": {
-        "latitude": 29.3073,
-        "longitude": 120.0753
-    }
+  "title": "我在山东的那些事儿",
+  "desc": "分享我在山东生活的点滴，探寻这座美丽孔孟之乡的魅力。",
+  "tags": [
+    "山东",
+    "旅行",
+    "生活",
+    "人文",
+    "美食",
+    "中国"
+  ],
+  "category": "28"
 }

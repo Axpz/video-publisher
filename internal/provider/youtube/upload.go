@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/axpz/video-publisher/internal/app"
+	"github.com/axpz/video-publisher/internal/config"
 	"google.golang.org/api/option"
 	yt "google.golang.org/api/youtube/v3"
 )
 
-func (c *Client) Upload(filePath, metadataPath string) (string, error) {
-	httpClient, err := c.httpClient(context.Background())
+func (c *Client) Upload(ctx context.Context, filePath, metadataPath string) (string, error) {
+	httpClient, err := c.httpClient(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	service, err := yt.NewService(context.Background(), option.WithHTTPClient(httpClient))
+	service, err := yt.NewService(ctx, option.WithHTTPClient(httpClient))
 	if err != nil {
 		return "", err
 	}
@@ -69,14 +69,12 @@ func (c *Client) getFactoryVideoMetadata(metadataFile string) *yt.Video {
 		} `json:"location"`
 	}
 
-	if c.Config.DefaultMetadataFile != "" {
-		if err := app.ReadJSON(c.Config.DefaultMetadataFile, &defaultMetadata); err != nil {
-			fmt.Printf("Failed to read default metadata file %s: %v\n", c.Config.DefaultMetadataFile, err)
-		}
+	if err := config.ReadJSON(c.Config.OrigMetaFile, &defaultMetadata); err != nil {
+		fmt.Printf("Failed to read default metadata file %s: %v\n", c.Config.OrigMetaFile, err)
 	}
 
 	if metadataFile != "" {
-		if err := app.ReadJSON(metadataFile, &metadata); err != nil {
+		if err := config.ReadJSON(metadataFile, &metadata); err != nil {
 			fmt.Printf("Failed to read metadata file %s: %v\n", metadataFile, err)
 		}
 	}
@@ -88,12 +86,13 @@ func (c *Client) getFactoryVideoMetadata(metadataFile string) *yt.Video {
 	if metadata.Desc == "" {
 		metadata.Desc = defaultMetadata.Desc
 	}
-	if len(metadata.Tags) == 0 {
-		metadata.Tags = defaultMetadata.Tags
-	}
+
+	metadata.Tags = append(metadata.Tags, defaultMetadata.Tags...)
+
 	if metadata.Category == "" {
 		metadata.Category = defaultMetadata.Category
 	}
+
 	if metadata.Location.Latitude == 0 && metadata.Location.Longitude == 0 {
 		metadata.Location.Latitude = defaultMetadata.Location.Latitude
 		metadata.Location.Longitude = defaultMetadata.Location.Longitude

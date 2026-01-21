@@ -2,25 +2,26 @@ package douyin
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/axpz/video-publisher/internal/app"
+	"github.com/axpz/video-publisher/internal/config"
 	"github.com/playwright-community/playwright-go"
 )
 
 const douyinURL = "https://www.douyin.com/"
 
 type Client struct {
-	Config app.Config
+	Config config.Config
 }
 
-func NewClient(cfg app.Config) *Client {
+func NewClient(cfg config.Config) *Client {
 	return &Client{Config: cfg}
 }
 
-func (c *Client) Auth() error {
+func (c *Client) Auth(ctx context.Context) error {
 	sessionFile := c.Config.SessionFile
 
 	if err := playwright.Install(); err != nil {

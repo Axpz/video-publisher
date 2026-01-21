@@ -2,6 +2,7 @@
 .auth/
 *secrets.json
 *token.json
+llm.json
 
 # Go 相关
 go.work

@@ -1,57 +1,103 @@
 # video-publisher
 
-A command-line tool for one-click video publishing to multiple platforms YouTube/Douyin/...
+A command-line tool for one-click video publishing to multiple platforms (YouTube, Douyin, etc.) with AI-powered metadata generation.
 
 ## Features
 
-- Multi-platform support: `youtube`, `douyin`
-- Unified `auth` and `upload` commands
-- Configurable metadata via JSON (title, description, etc.)
-- Written in Go, single binary executable
+- **Multi-platform support**: `youtube`, `douyin` (TikTok support coming soon).
+- **AI Analysis**: Generate video titles, descriptions, and tags from a simple sentence using Gemini or OpenAI.
+- **Unified Workflow**: Simple `auth` -> `analyze` -> `upload` pipeline.
+- **Configurable**: Flexible metadata and platform-specific settings.
+- **Go-powered**: Single binary, high performance, and easy to deploy.
 
-## Quick Start
+## Installation
+
+```bash
+make build
+```
+
+This will generate the `video-publisher` binary in the root directory.
 
 ## Usage
 
-### 1. Login
+### 1. Authentication
 
-For YouTube (default platform):
+First, authenticate with your target platform:
 
 ```bash
+# Default is YouTube
 ./video-publisher auth
-```
 
-Specify platform (e.g., Douyin):
-
-```bash
+# For Douyin
 ./video-publisher auth -p douyin
 ```
 
-The tool uses platform-specific authentication files stored in:
+Credentials and session data will be stored in the `.vpub/` directory.
 
-- Session file: `.auth/<platform>_session.json`
-- Token file: `.auth/<platform>_token.json`
-- Client secrets: `.auth/<platform>_client_secrets.json`
+### 2. AI Metadata Analysis (Optional)
 
-Where `<platform>` is `youtube` or `douyin`.
-
-Running `auth` generates/updates these files, which are automatically used by `upload`.
-
-### 2. Upload Video
-
-Format:
+Instead of manually writing JSON metadata, you can generate it using LLM:
 
 ```bash
-./video-publisher upload <video_path> <metadata_path>
+./video-publisher analyze "一个关于在山东旅行并品尝当地美食的短视频"
 ```
 
-Example (YouTube):
+This command will:
+1. Read LLM configuration from `.vpub/llm_secrets.json`.
+2. Use Gemini (default) or OpenAI to generate a optimized title, description, and tags.
+3. Save the result to a file like `youtube-meta.20260121120000.json`.
+
+### 3. Upload Video
+
+Upload your video using the generated or manual metadata:
 
 ```bash
-./video-publisher upload video.mp4 video-meta.json
+# Format: ./video-publisher upload <video_path> <metadata_path>
+./video-publisher upload my-trip.mp4 youtube-meta.20260121120000.json
 ```
+
+## Configuration
+
+The tool stores all configuration and secrets in the `.vpub/` directory.
+
+### LLM Configuration (`.vpub/llm.json`)
+
+To use the `analyze` command, create this file:
+
+```json
+{
+  "model": "gemini-2.0-flash-exp",
+  "api_key": "YOUR_GEMINI_API_KEY",
+  "base_url": "",
+  "lang": "zh-CN",
+  "gemini_proxy_key": ""
+}
+```
+
+- **model**: Supports Gemini models (e.g., `gemini-2.0-flash-exp`) or OpenAI models (e.g., `gpt-4o`, `o3-mini`).
+- **api_key**: Your provider API key.
+- **base_url**: Optional. Custom API endpoint (useful for proxies).
+- **lang**: Target language for generated metadata.
+- **gemini_proxy_key**: Optional. Specific for certain proxy setups.
+
+### Metadata Format
+
+The metadata file (passed to `upload`) follows this structure:
+
+```json
+{
+  "title": "视频标题",
+  "desc": "视频详细描述",
+  "tags": ["标签1", "标签2"],
+  "category": "28"
+}
+```
+
+*Note: `category` is platform-specific (e.g., YouTube category IDs).*
 
 ## Roadmap
 
-- [ ] AI auto-generate metadata for SEO (In Development)
-- [ ] AI video editing
+- [x] AI auto-generate metadata for SEO
+- [ ] TikTok platform support
+- [ ] Batch upload support
+- [ ] AI video editing and auto-captioning

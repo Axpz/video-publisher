@@ -7,22 +7,22 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/axpz/video-publisher/internal/app"
+	"github.com/axpz/video-publisher/internal/config"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	yt "google.golang.org/api/youtube/v3"
 )
 
 type Client struct {
-	Config app.Config
+	Config config.Config
 }
 
-func NewClient(cfg app.Config) *Client {
+func NewClient(cfg config.Config) *Client {
 	return &Client{Config: cfg}
 }
 
-func (c *Client) Auth() error {
-	_, err := c.httpClient(context.Background())
+func (c *Client) Auth(ctx context.Context) error {
+	_, err := c.httpClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (c *Client) httpClient(ctx context.Context) (*http.Client, error) {
 	tokenFile := c.Config.TokenFile
 	tok, err := tokenFromFile(tokenFile)
 	if err != nil {
-		tok, err = getTokenFromWeb(config)
+		tok, err = getTokenFromWeb(ctx, config)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +55,7 @@ func (c *Client) httpClient(ctx context.Context) (*http.Client, error) {
 	return config.Client(ctx, tok), nil
 }
 
-func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
+func getTokenFromWeb(ctx context.Context, config *oauth2.Config) (*oauth2.Token, error) {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Please open this link in your browser to authorize the application: \n%v\n", authURL)
 
@@ -64,7 +64,7 @@ func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
 		return nil, err
 	}
 
-	tok, err := config.Exchange(context.TODO(), authCode)
+	tok, err := config.Exchange(ctx, authCode)
 	if err != nil {
 		return nil, err
 	}
